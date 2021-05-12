@@ -5,33 +5,13 @@ name: build docker image for bsc node
 jobs:
   docker:
     runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
     steps:
+      - run: echo "IMAGE_TAG=$(echo "$GITHUB_REF" | sed 's/refs\/heads\///g' | sed 's/\//-/g')" >> $GITHUB_ENV
       - uses: actions/checkout@v2
-      - uses: actions/cache@v2
+      - uses: VaultVulp/gp-docker-action@1.1.8
         with:
-          path: /tmp/.docker-cache
-          key: docker-cache
-      - uses: docker/setup-buildx-action@v1
-    #   - uses: docker/login-action@v1
-    #     with:
-    #       registry: ${{ secrets.DOCKER_REGISTRY }}
-    #       username: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
-    #       password: ${{ secrets.DOCKER_REGISTRY_ACCESS_TOKEN }}
-    #   - run: echo "IMAGE_TAG=$(echo "$GITHUB_REF" | sed 's/refs\/heads\///g' | sed 's/\//-/g')" >> $GITHUB_ENV
-    #   - uses: docker/build-push-action@v2
-    #     id: contracts_docker_build
-    #     with:
-    #       push: true
-    #       cache-from: type=local,src=/tmp/.docker-cache
-    #       cache-to: type=local,dest=/tmp/.docker-cache
-    #       tags: ${{ secrets.DOCKER_REGISTRY }}/dispersion/contracts:${{env.IMAGE_TAG}}
-    #   - run: echo ${{ steps.contracts_docker_build.outputs.digest }}
-    #   - uses: docker/build-push-action@v2
-    #     id: blockscout_postgres_docker_build
-    #     with:
-    #       push: true
-    #       build-args: |
-    #         image=${{ secrets.DOCKER_REGISTRY }}/dispersion/contracts:${{env.IMAGE_TAG}}
-    #       file: ./integration/blockscout/Dockerfile
-    #       tags: ${{ secrets.DOCKER_REGISTRY }}/dispersion/blockscout-postgres:${{env.IMAGE_TAG}}
-    #   - run: echo ${{ steps.contracts_docker_build.outputs.digest }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          image-name: bsc
+          image-tag: ${{env.IMAGE_TAG}}
+          custom-args: --build-arg VERSION=${{env.IMAGE_TAG}}
