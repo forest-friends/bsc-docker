@@ -18,7 +18,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
           password: ${{ secrets.DOCKER_REGISTRY_ACCESS_TOKEN }}
-      - run: echo "IMAGE_TAG=$(echo "$GITHUB_REF" | sed 's/refs\/heads\///g' | sed 's/\//-/g')" >> $GITHUB_ENV
       - uses: docker/build-push-action@v2
         id: contracts_docker_build
         with:
